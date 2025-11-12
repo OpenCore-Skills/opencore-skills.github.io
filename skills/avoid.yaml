@@ -1,0 +1,4 @@
+name: avoid
+domain_tags: [navigation, safety, perception, mobility]
+mission_tags: [dynamic_obstacle_avoidance, safety_protocol]
+description: Actively avoids dynamic and static obstacles while performing a primary mission.
