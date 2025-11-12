@@ -1,0 +1,4 @@
+name: weld
+domain_tags: [process, manufacturing, manipulation]
+mission_tags: [welding, assembly, fabrication]
+description: Executes a welding path on a target seam using a dedicated tool.
