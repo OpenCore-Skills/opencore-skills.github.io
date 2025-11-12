@@ -1,0 +1,4 @@
+name: place
+domain_tags: [manipulation, grasping]
+mission_tags: [pick_and_place, assembly, sorting]
+description: Releases a currently held object at a specified target pose.
