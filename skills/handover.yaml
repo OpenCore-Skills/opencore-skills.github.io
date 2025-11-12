@@ -1,0 +1,4 @@
+name: handover
+domain_tags: [hri, manipulation, collaboration]
+mission_tags: [assistance, assembly, human_robot_interaction]
+description: Safely offers a held object to a human operator or takes an object from them.
