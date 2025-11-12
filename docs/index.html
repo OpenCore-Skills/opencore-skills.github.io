@@ -104,7 +104,6 @@
             color: #22863a;
         }
         
-        /* NEW: Add hover effect for clickable tags */
         .skill-card .tag:hover {
             cursor: pointer;
             opacity: 0.8;
@@ -197,7 +196,6 @@
                     const tagElement = document.createElement('span');
                     tagElement.className = 'tag tag-domain';
                     tagElement.textContent = tag;
-                    // NEW: Add click listener
                     tagElement.addEventListener('click', () => handleTagClick(tag, 'domain'));
                     domainContainer.appendChild(tagElement);
                 });
@@ -208,7 +206,6 @@
                     const tagElement = document.createElement('span');
                     tagElement.className = 'tag tag-mission';
                     tagElement.textContent = tag;
-                    // NEW: Add click listener
                     tagElement.addEventListener('click', () => handleTagClick(tag, 'mission'));
                     missionContainer.appendChild(tagElement);
                 });
@@ -227,20 +224,21 @@
 
             const filteredSkills = skills.filter(skill => {
                 // Name check
-                const nameMatch = skill.name.toLowerCase().includes(nameQuery);
+                const nameMatch = nameQuery === '' || skill.name.toLowerCase().includes(nameQuery);
+
+                // --- THIS IS THE FIX ---
+                // We add "query === '' ||" to explicitly pass the check if the search bar is empty.
 
                 // Domain Tag check
-                // .some() checks if at least one tag includes the query
-                // This works because includes('') is always true
-                const domainMatch = skill.domain_tags.some(tag => 
+                const domainMatch = domainQuery === '' || skill.domain_tags.some(tag => 
                     tag.toLowerCase().includes(domainQuery)
                 );
 
                 // Mission Tag check
-                const missionMatch = skill.mission_tags.some(tag => 
+                const missionMatch = missionQuery === '' || skill.mission_tags.some(tag => 
                     tag.toLowerCase().includes(missionQuery)
                 );
-
+                
                 // The skill must meet all three conditions
                 return nameMatch && domainMatch && missionMatch;
             });
@@ -249,5 +247,32 @@
         }
 
         /**
-         * NEW: Handles a user clicking on a domain or mission tag.
-         *
+         * Handles a user clicking on a domain or mission tag.
+         * @param {string} tagText - The text content of the tag.
+         * @param {string} tagType - 'domain' or 'mission'.
+         */
+        function handleTagClick(tagText, tagType) {
+            if (tagType === 'domain') {
+                searchDomainInput.value = tagText;
+            } else if (tagType === 'mission') {
+                searchMissionInput.value = tagText;
+            }
+            // Trigger the filter with the new value, preserving other filters
+            filterAndRender();
+        }
+
+        // --- 4. EVENT LISTENERS ---
+
+        // Render everything on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSkills(skills);
+        });
+
+        // Add listeners to search inputs
+        searchNameInput.addEventListener('input', filterAndRender);
+        searchDomainInput.addEventListener('input', filterAndRender);
+        searchMissionInput.addEventListener('input', filterAndRender);
+
+    </script>
+</body>
+</html>
