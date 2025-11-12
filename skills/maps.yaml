@@ -1,0 +1,4 @@
+name: navigate
+domain_tags: [navigation, mobility]
+mission_tags: [logistics, transport, exploration]
+description: Moves the robot base from its current location to a target destination.
