@@ -85,7 +85,6 @@
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            /* Add margin to the first tag container for spacing */
         }
         .skill-card .domain-tags {
             margin-bottom: 8px;
@@ -103,6 +102,13 @@
         .skill-card .tag-mission {
             background-color: #f3f9f0; /* Light Green */
             color: #22863a;
+        }
+        
+        /* NEW: Add hover effect for clickable tags */
+        .skill-card .tag:hover {
+            cursor: pointer;
+            opacity: 0.8;
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -145,7 +151,6 @@
 
     <script>
         // --- 1. SKILL DATA (Mockup) ---
-        // In a real app, this would come from an API or by loading the YAML files.
         const skills = [
             { name: "pick", domain_tags: ["manipulation", "grasping"], mission_tags: ["pick_and_place", "bin_picking", "logistics"], description: "Senses and grasps a target object from a specified location." },
             { name: "place", domain_tags: ["manipulation", "grasping"], mission_tags: ["pick_and_place", "assembly", "sorting"], description: "Releases a currently held object at a specified target pose." },
@@ -183,7 +188,6 @@
             skillsToRender.forEach(skill => {
                 const card = skillCardTemplate.content.cloneNode(true);
 
-                // Populate basic data
                 card.querySelector('.skill-name').textContent = skill.name;
                 card.querySelector('.skill-description').textContent = skill.description;
 
@@ -193,6 +197,8 @@
                     const tagElement = document.createElement('span');
                     tagElement.className = 'tag tag-domain';
                     tagElement.textContent = tag;
+                    // NEW: Add click listener
+                    tagElement.addEventListener('click', () => handleTagClick(tag, 'domain'));
                     domainContainer.appendChild(tagElement);
                 });
 
@@ -202,6 +208,8 @@
                     const tagElement = document.createElement('span');
                     tagElement.className = 'tag tag-mission';
                     tagElement.textContent = tag;
+                    // NEW: Add click listener
+                    tagElement.addEventListener('click', () => handleTagClick(tag, 'mission'));
                     missionContainer.appendChild(tagElement);
                 });
 
@@ -222,13 +230,14 @@
                 const nameMatch = skill.name.toLowerCase().includes(nameQuery);
 
                 // Domain Tag check
-                // .some() checks if at least one tag meets the condition
-                const domainMatch = domainQuery === '' || skill.domain_tags.some(tag => 
+                // .some() checks if at least one tag includes the query
+                // This works because includes('') is always true
+                const domainMatch = skill.domain_tags.some(tag => 
                     tag.toLowerCase().includes(domainQuery)
                 );
 
                 // Mission Tag check
-                const missionMatch = missionQuery === '' || skill.mission_tags.some(tag => 
+                const missionMatch = skill.mission_tags.some(tag => 
                     tag.toLowerCase().includes(missionQuery)
                 );
 
@@ -239,18 +248,6 @@
             renderSkills(filteredSkills);
         }
 
-        // --- 4. EVENT LISTENERS ---
-
-        // Render everything on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            renderSkills(skills);
-        });
-
-        // Add listeners to search inputs
-        searchNameInput.addEventListener('input', filterAndRender);
-        searchDomainInput.addEventListener('input', filterAndRender);
-        searchMissionInput.addEventListener('input', filterAndRender);
-
-    </script>
-</body>
-</html>
+        /**
+         * NEW: Handles a user clicking on a domain or mission tag.
+         *
