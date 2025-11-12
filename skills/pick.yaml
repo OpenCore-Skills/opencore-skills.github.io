@@ -1,0 +1,4 @@
+name: pick
+domain_tags: [manipulation, grasping]
+mission_tags: [pick_and_place, bin_picking, logistics]
+description: Senses and grasps a target object from a specified location.
