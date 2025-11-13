@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenCORE-Skills Catalog</title>
     <style>
-        /* All your CSS is correct and unchanged */
+        /* General Style */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
@@ -18,6 +18,8 @@
             margin: 0 auto;
             padding: 20px;
         }
+
+        /* Header */
         header {
             border-bottom: 1px solid #e1e4e8;
             padding-bottom: 20px;
@@ -32,22 +34,31 @@
             font-size: 1.1em;
             color: #586069;
         }
+
+        /* Tool Sections Layout */
         .tool-section {
             margin-bottom: 25px;
         }
+
+        /* Tool 1: Main Search (3-column) */
         #tool-1-search {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 15px;
         }
+
+        /* Tool 2: Checklists (3-column) */
         #tool-2-checklists {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 15px;
         }
+
+        /* Tool 3: Description (1-column, full-width) */
         #tool-3-description {
             /* No grid needed, it will be 100% width by default */
         }
+        
         .search-group {
             display: flex;
             flex-direction: column;
@@ -62,6 +73,8 @@
             border: 1px solid #d1d5da;
             border-radius: 6px;
         }
+
+        /* Checklist Styles */
         .checklist-group h3 {
             margin: 0 0 8px;
             font-weight: 600;
@@ -100,10 +113,14 @@
         .check-tag:hover {
             opacity: 0.8;
         }
+
+        /* Skill List */
         #skill-list {
             display: grid;
             grid-template-columns: 1fr;
             gap: 15px;
+            /* Set a minimum height to prevent layout jump */
+            min-height: 500px; 
         }
         .skill-card {
             background-color: #fff;
@@ -157,6 +174,35 @@
             opacity: 0.8;
             text-decoration: underline;
         }
+        
+        /* --- NEW: Pagination Styles --- */
+        #pagination-controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 30px;
+            padding-bottom: 20px;
+        }
+        .page-btn {
+            padding: 8px 14px;
+            border: 1px solid #d1d5da;
+            background-color: #fff;
+            color: #0366d6;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .page-btn:hover {
+            background-color: #f6f8fa;
+        }
+        .page-btn.active {
+            background-color: #0366d6;
+            color: #fff;
+            border-color: #0366d6;
+            font-weight: 600;
+        }
+        /* --- End Pagination Styles --- */
     </style>
 </head>
 <body>
@@ -185,15 +231,19 @@
         <section id="tool-2-checklists" class="tool-section">
             <div class="checklist-group">
                 <h3>Skill Name</h3>
-                <div id="name-checklist" class="tag-checklist"></div>
+                <div id="name-checklist" class="tag-checklist">
+                    </div>
             </div>
+            
             <div class="checklist-group">
                 <h3>Domain Tags</h3>
-                <div id="domain-checklist" class="tag-checklist"></div>
+                <div id="domain-checklist" class="tag-checklist">
+                    </div>
             </div>
             <div class="checklist-group">
                 <h3>Mission Tags</h3>
-                <div id="mission-checklist" class="tag-checklist"></div>
+                <div id="mission-checklist" class="tag-checklist">
+                    </div>
             </div>
         </section>
 
@@ -204,7 +254,11 @@
             </div>
         </section>
 
-        <main id="skill-list"></main>
+        <main id="skill-list">
+            </main>
+        
+        <nav id="pagination-controls"></nav>
+
     </div>
 
     <template id="skill-card-template">
@@ -222,14 +276,18 @@
         // This is injected by your build.py script.
         const skills = {{ skills_json | safe }};
 
-        // --- 3. GLOBAL STATE (for checklists) ---
-        // (Function definitions can safely live here)
+        // --- 3. GLOBAL STATE ---
         let allSkillNames = [];
         let allDomainTags = [];
         let allMissionTags = [];
 
+        // --- NEW: Pagination State ---
+        let currentPage = 1;
+        const skillsPerPage = 10;
+
+
         // --- 4. RENDERING & FILTERING FUNCTIONS ---
-        // (Function definitions can safely live here)
+        
         function renderSkills(skillsToRender) {
             const skillListContainer = document.getElementById('skill-list');
             const skillCardTemplate = document.getElementById('skill-card-template');
@@ -273,9 +331,16 @@
             });
         }
 
-        function filterAndRender() {
-            // Get references to inputs INSIDE this function,
-            // or pass them as arguments.
+        /**
+         * MODIFIED: Now handles pagination logic.
+         * @param {object} options - Optional object, e.g., { filterChanged: true }
+         */
+        function filterAndRender(options = {}) {
+            // NEW: If a filter changed, reset to page 1
+            if (options.filterChanged) {
+                currentPage = 1;
+            }
+
             const searchNameInput = document.getElementById('search-name');
             const searchDescriptionInput = document.getElementById('search-description');
             const searchDomainInput = document.getElementById('search-domain');
@@ -297,6 +362,7 @@
                 return (skill[tagType] || []).map(t => t.toLowerCase());
             };
 
+            // 1. Get the FULL filtered list
             const filteredSkills = skills.filter(skill => {
                 const skillNameLower = skill.name.toLowerCase();
                 const skillDescriptionLower = (skill.description || "").toLowerCase();
@@ -322,11 +388,26 @@
                 return nameMatch && descriptionMatch && domainMatch && missionMatch;
             });
 
-            renderSkills(filteredSkills);
+            // --- NEW PAGINATION LOGIC ---
+            
+            // 2. Calculate total pages from the FULL filtered list
+            const totalPages = Math.ceil(filteredSkills.length / skillsPerPage);
+
+            // 3. Get the "slice" (10 items) for the current page
+            const start = (currentPage - 1) * skillsPerPage;
+            const end = start + skillsPerPage;
+            const skillsForThisPage = filteredSkills.slice(start, end);
+
+            // 4. Render just the 10 skills for this page
+            renderSkills(skillsForThisPage);
+
+            // 5. Render the page number buttons
+            renderPagination(totalPages);
+            // --- END NEW PAGINATION LOGIC ---
         }
 
         // --- 5. CHECKLIST FUNCTIONS ---
-        // (Function definitions can safely live here)
+        
         function populateChecklists() {
             const nameChecklistContainer = document.getElementById('name-checklist');
             const domainChecklistContainer = document.getElementById('domain-checklist');
@@ -389,7 +470,7 @@
                 .map(tagEl => tagEl.textContent);
             
             input.value = selectedTags.join(', ');
-            filterAndRender();
+            filterAndRender({ filterChanged: true }); // A filter changed
         }
         
         function updateChecklistFromSearch(tagType) {
@@ -438,16 +519,53 @@
             input.value = currentQueries.join(', ');
             
             updateChecklistFromSearch(tagType);
-            filterAndRender();
+            filterAndRender({ filterChanged: true }); // A filter changed
         }
 
-        // --- 6. EVENT LISTENERS ---
-        // **** THIS IS THE FIX ****
-        // All code that touches the DOM is now INSIDE this listener.
+        // --- 6. NEW: PAGINATION FUNCTIONS ---
+        
+        /**
+         * Renders the page number buttons
+         * @param {number} totalPages - The total number of pages
+         */
+        function renderPagination(totalPages) {
+            const container = document.getElementById('pagination-controls');
+            container.innerHTML = ''; // Clear old buttons
+
+            // Only show buttons if there's more than one page
+            if (totalPages <= 1) return;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'page-btn';
+                btn.textContent = i;
+                if (i === currentPage) {
+                    btn.classList.add('active');
+                }
+                // Add click handler to change page
+                btn.addEventListener('click', () => handlePageClick(i));
+                container.appendChild(btn);
+            }
+        }
+
+        /**
+         * Handles a click on a page number button
+         * @param {number} pageNumber - The page to navigate to
+         */
+        function handlePageClick(pageNumber) {
+            currentPage = pageNumber;
+            filterAndRender({ filterChanged: false }); // Page changed, not filter
+            // Scroll to the top of the skill list
+            document.getElementById('skill-list').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // --- 7. EVENT LISTENERS ---
         document.addEventListener('DOMContentLoaded', () => {
             
-            // --- 2. DOM REFERENCES ---
-            // We now get the elements *after* the page has loaded
+            // --- NEW: Sort skills alphabetically by name ---
+            skills.sort((a, b) => a.name.localeCompare(b.name));
+
+            // We need to get elements *after* the page has loaded
             const searchNameInput = document.getElementById('search-name');
             const searchDescriptionInput = document.getElementById('search-description');
             const searchDomainInput = document.getElementById('search-domain');
@@ -471,24 +589,26 @@
             }
 
             // 3. Run the initial filter and render
-            filterAndRender();
+            filterAndRender({ filterChanged: false }); // Initial load
 
             // 4. Add all event listeners
             searchNameInput.addEventListener('input', () => {
                 updateChecklistFromSearch('name');
-                filterAndRender();
+                filterAndRender({ filterChanged: true }); // A filter changed
             });
             
-            searchDescriptionInput.addEventListener('input', filterAndRender);
+            searchDescriptionInput.addEventListener('input', () => {
+                filterAndRender({ filterChanged: true }); // A filter changed
+            });
             
             searchDomainInput.addEventListener('input', () => {
                 updateChecklistFromSearch('domain');
-                filterAndRender();
+                filterAndRender({ filterChanged: true }); // A filter changed
             });
             
             searchMissionInput.addEventListener('input', () => {
                 updateChecklistFromSearch('mission');
-                filterAndRender();
+                filterAndRender({ filterChanged: true }); // A filter changed
             });
         });
 
