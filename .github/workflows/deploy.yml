@@ -1,12 +1,10 @@
 name: Build and Deploy GitHub Pages
 
-# Run this action every time you push to the 'main' branch
 on:
   push:
     branches:
       - main
 
-# Permissions needed to deploy to GitHub Pages
 permissions:
   contents: read
   pages: write
@@ -30,15 +28,20 @@ jobs:
           pip install PyYAML Jinja2
           
       - name: Run build script
-        run: python build.py  # This generates the 'dist' folder
+        run: python build.py  # Esto genera 'dist'
+
+      - name: Copy Admin folder
+        run: |
+          mkdir -p dist/admin
+          cp -r docs/admin/* dist/admin/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist  # Upload the 'dist' folder
+          path: ./dist
 
   deploy:
-    needs: build  # Wait for the 'build' job to finish
+    needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -46,5 +49,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4 
-        # This action takes the artifact from 'build' and deploys it
+        uses: actions/deploy-pages@v4
