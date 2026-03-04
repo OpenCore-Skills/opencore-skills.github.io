@@ -1,0 +1,45 @@
+backend:
+  name: github
+  repo: OpenCore-Skills/opencore-skills.github.io
+  branch: main
+  squash_merges: true
+
+# Muy recomendable para que se creen Pull Requests
+publish_mode: editorial_workflow
+
+media_folder: "assets/uploads"
+public_folder: "/assets/uploads"
+
+site_url: https://opencore-skills.github.io
+display_url: https://opencore-skills.github.io
+
+collections:
+  - name: "skills"
+    label: "Skills"
+    label_singular: "Skill"
+    folder: "skills"
+    create: true
+    delete: false
+    extension: "yaml"
+    format: "yaml"
+    slug: "{{slug}}"
+    identifier_field: "name"
+
+    fields:
+      - label: "Skill Name"
+        name: "name"
+        widget: "string"
+
+      - label: "Domain Tags"
+        name: "domain_tags"
+        widget: "list"
+        allow_add: true
+
+      - label: "Mission Tags"
+        name: "mission_tags"
+        widget: "list"
+        allow_add: true
+
+      - label: "Description"
+        name: "description"
+        widget: "text"
