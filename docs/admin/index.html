@@ -3,20 +3,22 @@
   <head>
     <meta charset="utf-8" />
     <title>OpenCore Skills Admin</title>
-    <!-- Carga de Decap CMS -->
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <!-- Versión clásica compatible con sitios estáticos -->
+    <script src="https://unpkg.com/netlify-cms@^2.15.0/dist/netlify-cms.js"></script>
   </head>
   <body>
-    <!-- Este div es obligatorio -->
     <div id="nc-root"></div>
 
-    <!-- Inicialización manual de Decap CMS -->
     <script>
-      window.CMS_MANUAL_INIT = true; // Evita auto init antes de que el div exista
-
-      // Inicializa el CMS con la config correcta
-      CMS.init({
-        config: '/admin/config.yml'
+      // Asegura que el div exista antes de inicializar
+      window.addEventListener('DOMContentLoaded', function() {
+        if (window.CMS) {
+          CMS.init({
+            config: '/admin/config.yml' // tu config.yml
+          });
+        } else {
+          console.error('Netlify/Decap CMS no se cargó correctamente');
+        }
       });
     </script>
   </body>
