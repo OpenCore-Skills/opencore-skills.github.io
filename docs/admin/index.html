@@ -1,9 +1,23 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
+    <title>OpenCore Skills Admin</title>
+    <!-- Carga de Decap CMS -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   </head>
   <body>
+    <!-- Este div es obligatorio -->
+    <div id="nc-root"></div>
+
+    <!-- Inicialización manual de Decap CMS -->
+    <script>
+      window.CMS_MANUAL_INIT = true; // Evita auto init antes de que el div exista
+
+      // Inicializa el CMS con la config correcta
+      CMS.init({
+        config: '/admin/config.yml'
+      });
+    </script>
   </body>
 </html>
