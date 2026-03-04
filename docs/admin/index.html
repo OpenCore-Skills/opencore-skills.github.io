@@ -3,19 +3,21 @@
   <head>
     <meta charset="utf-8" />
     <title>OpenCore Skills Admin</title>
-    <!-- Netlify CMS 2.x CDN (funciona en sitios estáticos como GitHub Pages) -->
-    <script src="https://cdn.jsdelivr.net/npm/netlify-cms@2.10.192/dist/netlify-cms.min.js"></script>
+    <!-- Netlify CMS clásico (CDN estable) -->
+    <script src="https://cdn.jsdelivr.net/npm/netlify-cms@2.10.192/dist/netlify-cms.min.js" defer></script>
   </head>
   <body>
-    <!-- Div obligatorio para que CMS se renderice -->
+    <!-- Div obligatorio -->
     <div id="nc-root"></div>
 
     <script>
-      // Inicialización segura después de que el DOM cargue
-      window.addEventListener('DOMContentLoaded', function() {
+      // Inicialización segura después de que el DOM esté listo
+      document.addEventListener('DOMContentLoaded', function () {
+        // Verifica que CMS esté disponible
         if (window.CMS) {
           CMS.init({
-            config: '/admin/config.yml'  // apunta a tu config.yml publicado
+            config: '/admin/config.yml', // ruta final en GitHub Pages
+            manualInit: true           // asegura que CMS no se inicialice antes
           });
         } else {
           console.error('Netlify/Decap CMS no se ha cargado correctamente');
