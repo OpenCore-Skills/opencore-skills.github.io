@@ -33,7 +33,7 @@ jobs:
       - name: Copy Admin folder
         run: |
           mkdir -p dist/admin
-          cp -r admin/* dist/admin/
+          cp -r docs/admin/* dist/admin/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
